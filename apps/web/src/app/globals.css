@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface text-text-primary font-sans antialiased;
+    font-size: 14px;
+  }
+}
+
+/* Print Styles for Georgia/Times New Roman Exam Layout */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-page {
+    font-family: 'Georgia', 'Times New Roman', serif !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Micro-animations for buttons, cards */
+.animate-hover-card {
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.animate-hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.animate-btn-press:active {
+  transform: scale(0.97);
+  transition: transform 100ms;
+}
+
+@keyframes spinner {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spinner {
+  animation: spinner 1s linear infinite;
+}
+
+/* Transitions for overlay notifications */
+.animate-fade-in {
+  animation: fadeIn 300ms ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

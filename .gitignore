@@ -1,0 +1,114 @@
+```gitignore
+# ============================================
+# Dependencies
+# ============================================
+node_modules/
+.pnpm-store/
+.pnp/
+.pnp.js
+
+# ============================================
+# Build Outputs
+# ============================================
+dist/
+build/
+.next/
+out/
+coverage/
+
+# Package build outputs
+packages/**/dist
+apps/**/dist
+
+# ============================================
+# Logs
+# ============================================
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================
+# Environment Variables
+# ============================================
+.env
+.env.*
+!.env.example
+
+apps/api/.env
+apps/web/.env.local
+apps/web/.env
+
+# ============================================
+# OS / IDE Files
+# ============================================
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+
+*.swp
+*.swo
+
+# ============================================
+# TypeScript
+# ============================================
+*.tsbuildinfo
+
+# ============================================
+# Uploads / Temporary Files
+# ============================================
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
+
+tmp/
+temp/
+
+# ============================================
+# Cache
+# ============================================
+.cache/
+.parcel-cache/
+.turbo/
+
+# ============================================
+# Docker
+# ============================================
+docker-data/
+*.pid
+
+# ============================================
+# Testing
+# ============================================
+playwright-report/
+test-results/
+
+# ============================================
+# Vibe Coding / Context Files
+# (DO NOT PUSH)
+# ============================================
+PRD.md
+DESIGN_SPEC.md
+ARCHITECTURE.md
+MVP.md
+
+# Optional extra context/prompts
+prompts/
+context/
+notes/
+
+# ============================================
+# Local Generated Files
+# ============================================
+*.pdf
+*.tmp
+*.bak
+
+# ============================================
+# Editor Config
+# ============================================
+.history/
+```
