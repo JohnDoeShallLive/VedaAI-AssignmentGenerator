@@ -74,13 +74,24 @@ export default function AssignmentOutputPage() {
   const handleDownloadPDF = async () => {
     setDownloading(true);
     try {
-      console.log(`[pdf-client]: Triggering Puppeteer PDF download stream for assignment ${id}`);
+      console.log(`[pdf-client]: Triggering authenticated PDF download stream for assignment ${id}`);
       
-      // Use direct window location assignment for clean native browser downloads
-      window.location.href = `${API_BASE_URL}/api/v1/assignments/${id}/pdf`;
+      const response = await axios.get(`${API_BASE_URL}/api/v1/assignments/${id}/pdf`, {
+        responseType: 'blob',
+        withCredentials: true
+      });
       
-      // Keep state simple
-      setTimeout(() => setDownloading(false), 2000);
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `assignment-${id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      setDownloading(false);
     } catch (err: any) {
       console.error('[pdf-client]: Triggering failed:', err);
       setDownloading(false);
