@@ -62,6 +62,7 @@ router.post('/sync', async (req: Request, res: Response, next: NextFunction) => 
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
     });
 
     res.json({
