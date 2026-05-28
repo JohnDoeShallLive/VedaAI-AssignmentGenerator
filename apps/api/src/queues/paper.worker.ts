@@ -17,7 +17,9 @@ export function initializePaperWorker() {
       // 1. Fetch assignment
       const assignment = await Assignment.findById(assignmentId);
       if (!assignment) {
-        throw new Error(`Assignment ${assignmentId} not found`);
+        console.warn(`[worker]: Assignment ${assignmentId} not found. This is a permanent failure (possibly deleted). Discarding job.`);
+        await job.discard();
+        throw new Error(`Assignment ${assignmentId} not found (permanent)`);
       }
 
       // 2. Set status to processing
@@ -52,7 +54,13 @@ Focus your questions and sections HEAVILY around this reference material.`;
             console.warn(`[worker]: Could not extract text from file, falling back to empty context.`);
           }
         } catch (err: any) {
-          console.error('[worker]: Reference text extraction threw error:', err.message || err);
+          console.warn(`[worker-warning]: OCR text extraction FAILED for assignment ${assignmentId}. SURFACING WARNING:`, err.message || err);
+          try {
+            assignment.additionalInfo = `${assignment.additionalInfo || ''}\n[WARNING: OCR text extraction failed for uploaded file: ${err.message || err}]`.trim();
+            await assignment.save();
+          } catch (saveErr) {
+            console.error('[worker]: Failed to append OCR warning to assignment:', saveErr);
+          }
         }
       }
 
@@ -64,17 +72,20 @@ Focus your questions and sections HEAVILY around this reference material.`;
         0
       );
 
-      // 7. Save GeneratedPaper Document
-      const paper = new GeneratedPaper({
-        assignmentId: assignment._id,
-        schoolName: 'St. Kabir High School', // Mock school name
-        className: 'Class X',                // Mock class
-        subject: assignment.subject,
-        timeAllowed: paperData.timeAllowed,
-        totalMarks: totalMarks,
-        sections: paperData.sections,
-      });
-      await paper.save();
+      // 7. Upsert GeneratedPaper Document
+      const paper = await GeneratedPaper.findOneAndUpdate(
+        { assignmentId: assignment._id },
+        {
+          assignmentId: assignment._id,
+          schoolName: 'St. Kabir High School', // Mock school name
+          className: 'Class X',                // Mock class
+          subject: assignment.subject,
+          timeAllowed: paperData.timeAllowed,
+          totalMarks: totalMarks,
+          sections: paperData.sections,
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
 
       // 8. Update assignment details
       assignment.status = 'done';
@@ -103,6 +114,12 @@ Focus your questions and sections HEAVILY around this reference material.`;
     if (!job) return;
     const { assignmentId } = job.data;
     console.error(`[worker]: Job ${job.id} failed:`, error.message);
+
+    // If it's a permanent failure (e.g. assignment not found), do not retry and do not update DB
+    if (error.message.includes('not found') || error.message.includes('permanent')) {
+      console.log(`[worker]: Job ${job.id} failed permanently (assignment deleted). No retries or DB updates.`);
+      return;
+    }
 
     // Check if we have remaining attempts
     const maxAttempts = job.opts.attempts || 3;

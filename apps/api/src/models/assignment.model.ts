@@ -13,8 +13,8 @@ const QuestionTypeSchema = new Schema<QuestionTypeConfig>({
     required: true,
   },
   label: { type: String, required: true },
-  count: { type: Number, required: true, min: 1 },
-  marksEach: { type: Number, required: true, min: 1 },
+  count: { type: Number, required: true, min: 1, max: 50 },
+  marksEach: { type: Number, required: true, min: 1, max: 20 },
 }, { _id: false });
 
 const AssignmentSchema = new Schema<any>({

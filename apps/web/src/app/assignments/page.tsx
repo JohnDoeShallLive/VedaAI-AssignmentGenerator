@@ -186,30 +186,50 @@ export default function AssignmentsListPage() {
           </button>
         </div>
       ) : filteredAssignments.length === 0 ? (
-        /* Empty state view */
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-          {/* Custom vector illustration */}
-          <svg className="w-full max-w-[280px] h-auto mb-6 text-text-disabled" viewBox="0 0 200 150" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="30" y="20" width="140" height="110" rx="12" fill="white" stroke="#E5E7EB" strokeWidth="2" strokeDasharray="4 4" />
-            <rect x="55" y="45" width="90" height="8" rx="4" fill="#F3F4F6" />
-            <rect x="55" y="65" width="70" height="8" rx="4" fill="#F3F4F6" />
-            <rect x="55" y="85" width="80" height="8" rx="4" fill="#F3F4F6" />
-            <circle cx="100" cy="75" r="28" fill="#FFF0EB" />
-            <path d="M96 66H104V74H112V82H104V90H96V82H88V74H96V66Z" fill="#E85D2B" />
-          </svg>
+        assignments.length === 0 ? (
+          /* Empty state view: system wide */
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-fade-in">
+            {/* Custom vector illustration */}
+            <svg className="w-full max-w-[280px] h-auto mb-6 text-text-disabled" viewBox="0 0 200 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="30" y="20" width="140" height="110" rx="12" fill="white" stroke="#E5E7EB" strokeWidth="2" strokeDasharray="4 4" />
+              <rect x="55" y="45" width="90" height="8" rx="4" fill="#F3F4F6" />
+              <rect x="55" y="65" width="70" height="8" rx="4" fill="#F3F4F6" />
+              <rect x="55" y="85" width="80" height="8" rx="4" fill="#F3F4F6" />
+              <circle cx="100" cy="75" r="28" fill="#FFF0EB" />
+              <path d="M96 66H104V74H112V82H104V90H96V82H88V74H96V66Z" fill="#E85D2B" />
+            </svg>
 
-          <h2 className="text-lg font-semibold text-text-primary mb-2">No assignments yet</h2>
-          <p className="text-text-secondary text-sm max-w-[340px] leading-relaxed mb-6">
-            Create structured exam-aligned papers and track classroom due dates effortlessly in one place.
-          </p>
+            <h2 className="text-lg font-semibold text-text-primary mb-2">No assignments yet</h2>
+            <p className="text-text-secondary text-sm max-w-[340px] leading-relaxed mb-6">
+              Create structured exam-aligned papers and track classroom due dates effortlessly in one place.
+            </p>
 
-          <Link href="/create">
-            <button className="bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 transition-all text-white font-medium py-3 px-6 rounded-md text-sm shadow-md inline-flex items-center gap-2">
-              <Plus className="w-4 h-4 text-white" />
-              <span>Create Your First Assignment</span>
+            <Link href="/create">
+              <button className="bg-[#1A1A1A] hover:bg-[#333333] active:scale-95 transition-all text-white font-medium py-3 px-6 rounded-md text-sm shadow-md inline-flex items-center gap-2">
+                <Plus className="w-4 h-4 text-white" />
+                <span>Create Your First Assignment</span>
+              </button>
+            </Link>
+          </div>
+        ) : (
+          /* Empty search results state */
+          <div className="flex flex-col items-center justify-center py-20 px-4 text-center bg-white border border-border rounded-xl p-8 max-w-lg mx-auto animate-fade-in">
+            <AlertCircle className="w-12 h-12 text-text-secondary mb-3 animate-bounce" />
+            <h3 className="text-base font-semibold text-text-primary mb-1">No search results</h3>
+            <p className="text-text-secondary text-xs text-center mb-6 leading-relaxed max-w-[300px]">
+              No assignments match your search query "{searchQuery}" or filters. Try adjusting your search term or clearing the filters.
+            </p>
+            <button 
+              onClick={() => {
+                setSearchQuery('');
+                setSubjectFilter('All');
+              }}
+              className="bg-[#1A1A1A] hover:bg-[#333333] text-white font-semibold py-2 px-5 rounded-md text-xs transition-all active:scale-95 shadow-sm"
+            >
+              Clear Filters & Search
             </button>
-          </Link>
-        </div>
+          </div>
+        )
       ) : (
         /* Filled Grid view */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">

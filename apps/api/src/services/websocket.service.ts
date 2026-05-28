@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server as HttpServer } from 'http';
 import { WSClientSubscribeMessage, WSServerProgressMessage } from '@vedaai/types';
+import { Assignment } from '../models/assignment.model';
 
 // Map: assignmentId -> Set of WebSockets
 const subscriptions = new Map<string, Set<WebSocket>>();
@@ -34,12 +35,44 @@ export function initializeWebSocketServer(httpServer: HttpServer): WebSocketServ
           
           console.log(`[websocket]: Client subscribed to assignment ${msg.assignmentId}`);
           
-          // Send back confirmation of queue status
-          const ack: WSServerProgressMessage = {
-            event: 'job.queued',
-            assignmentId: msg.assignmentId,
-          };
-          ws.send(JSON.stringify(ack));
+          // Query assignment state from MongoDB asynchronously to prevent over-writing UI state on client disconnect/reconnects
+          (async () => {
+            try {
+              const assignment = await Assignment.findById(msg.assignmentId);
+              let event: 'job.queued' | 'job.processing' | 'job.done' | 'job.failed' = 'job.queued';
+              let resultId: string | undefined;
+
+              if (assignment) {
+                if (assignment.status === 'processing') {
+                  event = 'job.processing';
+                } else if (assignment.status === 'done') {
+                  event = 'job.done';
+                  resultId = assignment.resultId ? assignment.resultId.toString() : undefined;
+                } else if (assignment.status === 'failed') {
+                  event = 'job.failed';
+                }
+              }
+
+              const ack: WSServerProgressMessage = {
+                event,
+                assignmentId: msg.assignmentId,
+                resultId,
+              };
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(ack));
+                console.log(`[websocket]: Sent custom state subscription ACK "${event}" for assignment ${msg.assignmentId}`);
+              }
+            } catch (dbErr) {
+              console.error('[websocket]: Failed to fetch assignment for subscription ACK:', dbErr);
+              const ack: WSServerProgressMessage = {
+                event: 'job.queued',
+                assignmentId: msg.assignmentId,
+              };
+              if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(ack));
+              }
+            }
+          })();
         }
       } catch (err) {
         console.error('[websocket]: Error processing client message:', err);

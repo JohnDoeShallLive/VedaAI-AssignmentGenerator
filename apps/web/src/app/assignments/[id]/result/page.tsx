@@ -194,7 +194,7 @@ export default function AssignmentOutputPage() {
 
       {/* 2. Structured Printed Paper Canvas */}
       <div 
-        className={`bg-white select-none ${
+        className={`bg-white ${
           isPrintMode 
             ? 'print-page w-full p-0 shadow-none font-print' 
             : 'max-w-[800px] mx-auto border border-border shadow-card rounded-xl p-8 md:p-12 font-print'
@@ -260,7 +260,22 @@ export default function AssignmentOutputPage() {
                     <div className="flex-1">
                       <div className="flex items-start gap-2">
                         <span className="font-bold min-w-[20px]">{qIdx + 1}.</span>
-                        <div className="whitespace-pre-wrap flex-1">{q.text}</div>
+                        <div className="flex-1 space-y-2">
+                          <div className="whitespace-pre-wrap font-medium">{q.text}</div>
+                          {q.type === 'mcq' && q.options && q.options.length > 0 && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-2 pl-1 text-[13px] font-normal text-black/90">
+                              {q.options.map((opt, optIdx) => {
+                                const letter = String.fromCharCode(65 + optIdx); // A, B, C, D
+                                return (
+                                  <div key={optIdx} className="flex items-start gap-2">
+                                    <span className="font-bold text-black">{letter}.</span>
+                                    <span>{opt}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
@@ -317,9 +332,23 @@ export default function AssignmentOutputPage() {
                         <p className="font-bold mb-1">
                           Q{qIdx + 1}. {q.text.split('\n')[0]}...
                         </p>
-                        <p className="text-text-secondary bg-white p-2.5 rounded border border-border border-l-2 border-l-brand italic">
-                          Solution: {q.answer || 'No solution provided.'}
-                        </p>
+                        {q.type === 'mcq' ? (
+                          <div className="text-text-secondary bg-white p-2.5 rounded border border-border border-l-2 border-l-brand flex flex-col gap-1">
+                            <p className="font-semibold text-brand text-xs">
+                              Correct Option: {(() => {
+                                const idx = q.options?.findIndex(opt => opt.trim().toLowerCase() === q.correctAnswer?.trim().toLowerCase());
+                                const letter = idx !== undefined && idx !== -1 ? String.fromCharCode(65 + idx) : 'N/A';
+                                return `${qIdx + 1} → ${letter}`;
+                              })()}
+                            </p>
+                            {q.correctAnswer && <p className="text-[11px] font-semibold text-text-primary">Answer: {q.correctAnswer}</p>}
+                            {q.answer && <p className="text-[11px] text-text-secondary mt-0.5">Explanation: {q.answer}</p>}
+                          </div>
+                        ) : (
+                          <p className="text-text-secondary bg-white p-2.5 rounded border border-border border-l-2 border-l-brand italic">
+                            Solution: {q.answer || 'No solution provided.'}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>

@@ -6,6 +6,13 @@ export interface GeneratedPaperDocument extends Omit<IGeneratedPaper, '_id'>, Do
 const QuestionSchema = new Schema<Question>({
   id: { type: String, required: true },
   text: { type: String, required: true },
+  type: {
+    type: String,
+    enum: ['mcq', 'short', 'diagram', 'numerical', 'long'],
+    required: true,
+  },
+  options: { type: [String] },
+  correctAnswer: { type: String },
   difficulty: {
     type: String,
     enum: ['easy', 'moderate', 'hard'],

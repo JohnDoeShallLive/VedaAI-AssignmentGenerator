@@ -55,6 +55,14 @@ app.get('/api/v1/health', (req: Request, res: Response) => {
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   console.error('[server-error]:', err.stack || err.message || err);
   
+  // Intercept Mongoose CastError (e.g. invalid MongoDB ObjectId format) to prevent internal details disclosure
+  if (err.name === 'CastError' || err.kind === 'ObjectId') {
+    return res.status(400).json({
+      success: false,
+      error: 'Invalid ID format',
+    });
+  }
+
   const status = err.status || err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
   

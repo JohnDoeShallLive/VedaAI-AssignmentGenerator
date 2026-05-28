@@ -15,11 +15,25 @@
     background: white !important;
     color: black !important;
   }
-  .no-print {
+  /* Hide sidebar, header, navigation and custom no-print items */
+  aside, header, nav, footer, .no-print {
     display: none !important;
   }
   .print-only {
     display: block !important;
+  }
+  /* Reset layout margins/paddings on print */
+  main {
+    padding-left: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin: 0 !important;
+  }
+  /* Allow full-width content sheet */
+  .max-w-7xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
   .print-page {
     font-family: 'Georgia', 'Times New Roman', serif !important;

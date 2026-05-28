@@ -28,9 +28,12 @@ export type QuestionDifficulty = 'easy' | 'moderate' | 'hard';
 export interface Question {
   id: string;
   text: string;
+  type: QuestionType;
+  options?: string[];         // for MCQs
+  correctAnswer?: string;     // for MCQs
   difficulty: QuestionDifficulty;
   marks: number;
-  answer?: string;            // for answer key
+  answer?: string;            // for descriptive answer key
 }
 
 export interface Section {

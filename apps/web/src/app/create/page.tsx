@@ -27,8 +27,8 @@ import { QuestionType, QuestionTypeConfig } from '@vedaai/types';
 const questionTypeRowSchema = z.object({
   type: z.enum(['mcq', 'short', 'diagram', 'numerical', 'long']),
   label: z.string(),
-  count: z.number().int().min(1, 'Count must be at least 1'),
-  marksEach: z.number().int().min(1, 'Marks must be at least 1'),
+  count: z.number().int().min(1, 'Count must be at least 1').max(50, 'Maximum 50 questions of this type allowed'),
+  marksEach: z.number().int().min(1, 'Marks must be at least 1').max(20, 'Maximum 20 marks per question allowed'),
 });
 
 const createFormSchema = z.object({
@@ -36,12 +36,22 @@ const createFormSchema = z.object({
   subject: z.string().min(2, 'Subject is required'),
   dueDate: z.string().refine((dateStr) => {
     if (!dateStr) return false;
-    const selectedDate = new Date(dateStr);
+    const [year, month, day] = dateStr.split('-').map(Number);
+    const selectedDate = new Date(year, month - 1, day);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return selectedDate >= today;
   }, { message: 'Due date cannot be in the past' }),
-  questionTypes: z.array(questionTypeRowSchema).min(1, 'At least one question type is required'),
+  questionTypes: z.array(questionTypeRowSchema)
+    .min(1, 'At least one question type is required')
+    .refine((types) => {
+      const totalQ = types.reduce((sum, item) => sum + (item.count || 0), 0);
+      return totalQ <= 100;
+    }, { message: 'Total questions across all types cannot exceed 100' })
+    .refine((types) => {
+      const totalM = types.reduce((sum, item) => sum + ((item.count || 0) * (item.marksEach || 0)), 0);
+      return totalM <= 200;
+    }, { message: 'Total marks for the assessment cannot exceed 200' }),
   additionalInfo: z.string().optional(),
 });
 
@@ -175,7 +185,8 @@ export default function CreateAssignmentPage() {
   const updateStepper = (index: number, field: 'count' | 'marksEach', change: number) => {
     const currentTypes = [...watchedQuestionTypes];
     const currentValue = currentTypes[index][field] || 0;
-    const newValue = Math.max(1, currentValue + change);
+    const maxVal = field === 'count' ? 50 : 20;
+    const newValue = Math.min(maxVal, Math.max(1, currentValue + change));
     
     currentTypes[index][field] = newValue;
     setValue('questionTypes', currentTypes, { shouldValidate: true });

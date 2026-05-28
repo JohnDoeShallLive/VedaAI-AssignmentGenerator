@@ -36,7 +36,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="hidden lg:flex flex-col w-[264px] h-screen bg-white border-r border-border p-4 fixed left-0 top-0 select-none z-30">
+    <aside className="hidden lg:flex flex-col w-[264px] h-screen bg-white border-r border-border p-4 fixed left-0 top-0 select-none z-30 no-print">
       {/* Logo Area */}
       <div className="flex items-center gap-2 mb-6 px-2">
         <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center text-white font-bold text-lg">
