@@ -1,18 +1,28 @@
 import puppeteer from 'puppeteer';
+import puppeteerCore from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 export async function generatePDF(assignmentId: string, sessionToken?: string): Promise<Buffer> {
   console.log(`[pdf-service]: Starting Puppeteer PDF rendering for assignment ${assignmentId}`);
   
   let browser;
   try {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-      ],
-    });
+    if (process.env.NODE_ENV === 'production') {
+      browser = await puppeteerCore.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath(),
+        headless: true,
+      });
+    } else {
+      browser = await puppeteer.launch({
+        headless: true,
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+        ],
+      });
+    }
 
     const page = await browser.newPage();
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';

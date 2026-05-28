@@ -31,7 +31,7 @@ export function initializePaperWorker() {
 
       // 4. Fetch User profile to extract custom institution name dynamically
       const ownerId = userId || assignment.userId;
-      let institutionName = 'St. Kabir High School';
+      let institutionName = (assignment as any).institutionName || 'Your Institution';
       let logoUrl = '';
       if (ownerId) {
         try {
