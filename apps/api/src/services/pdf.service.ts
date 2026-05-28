@@ -28,20 +28,35 @@ export async function generatePDF(assignmentId: string, sessionToken?: string): 
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
     const targetUrl = `${frontendUrl}/assignments/${assignmentId}/result?print=true`;
     
-    // Inject NextAuth session token cookies to authenticate Puppeteer headless browser securely
+    // Inject session token cookies to authenticate Puppeteer headless browser securely
     if (sessionToken) {
       const hostname = new URL(frontendUrl).hostname;
-      const cookieNames = ['__session'];
       
-      for (const name of cookieNames) {
-        await page.setCookie({
-          name,
-          value: sessionToken,
-          domain: hostname,
-          path: '/',
-        });
-      }
-      console.log('[pdf-service]: Authenticated session cookie successfully injected into Puppeteer context');
+      // 1. Set cookie for the frontend domain (handles document navigation)
+      await page.setCookie({
+        name: '__session',
+        value: sessionToken,
+        domain: hostname,
+        path: '/',
+      });
+      
+      // 2. Intercept API requests and inject the session cookie for cross-domain backend calls
+      await page.setRequestInterception(true);
+      page.on('request', (request) => {
+        if (request.url().includes('/api/')) {
+          const headers = request.headers();
+          // Ensure we don't overwrite other cookies if they exist
+          const existingCookies = headers['cookie'] || headers['Cookie'] || '';
+          headers['Cookie'] = existingCookies 
+            ? `${existingCookies}; __session=${sessionToken}`
+            : `__session=${sessionToken}`;
+          request.continue({ headers });
+        } else {
+          request.continue();
+        }
+      });
+      
+      console.log('[pdf-service]: Authenticated session cookie and interceptor successfully injected into Puppeteer context');
     }
 
     console.log(`[pdf-service]: Navigating to result page: ${targetUrl}`);
