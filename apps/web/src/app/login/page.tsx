@@ -81,11 +81,15 @@ function LoginComponent() {
       if (res.data.success) {
         await refreshUser();
         setSuccessMsg('Logged in successfully! Redirecting...');
+        
+        // Force Next.js to re-evaluate middleware with new cookies
+        router.refresh();
+        
         setTimeout(() => {
           if (res.data.data.onboardingComplete) {
-            router.push('/assignments');
+            router.replace('/assignments');
           } else {
-            router.push('/onboarding');
+            router.replace('/onboarding');
           }
         }, 800);
       } else {
@@ -131,8 +135,12 @@ function LoginComponent() {
       if (res.data.success) {
         await refreshUser();
         setSuccessMsg('Registration successful! Redirecting...');
+        
+        // Force Next.js to re-evaluate middleware with new cookies
+        router.refresh();
+        
         setTimeout(() => {
-          router.push('/onboarding');
+          router.replace('/onboarding');
         }, 1000);
       } else {
          throw new Error('Failed to sync user with backend');
@@ -189,11 +197,15 @@ function LoginComponent() {
       if (res.data.success) {
         await refreshUser();
         setSuccessMsg('Logged in successfully! Redirecting...');
+        
+        // Force Next.js to re-evaluate middleware with new cookies
+        router.refresh();
+        
         setTimeout(() => {
            if (res.data.data.onboardingComplete) {
-            router.push('/assignments');
+            router.replace('/assignments');
           } else {
-            router.push('/onboarding');
+            router.replace('/onboarding');
           }
         }, 800);
       } else {

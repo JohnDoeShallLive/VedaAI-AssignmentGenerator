@@ -57,12 +57,11 @@ router.post('/sync', async (req: Request, res: Response, next: NextFunction) => 
     const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
     const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
 
-    // Set cookie
     res.cookie('__session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     });
 
     res.json({
