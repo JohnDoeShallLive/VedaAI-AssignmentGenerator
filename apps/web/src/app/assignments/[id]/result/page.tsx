@@ -203,11 +203,20 @@ export default function AssignmentOutputPage() {
         
         {/* Paper Header */}
         <div className="text-center mb-6">
+          {paper.logoUrl && (
+            <div className="mx-auto mb-3 w-16 h-16 rounded-xl overflow-hidden flex items-center justify-center select-none no-print">
+              <img 
+                src={paper.logoUrl.startsWith('/') ? `${API_BASE_URL}${paper.logoUrl}` : paper.logoUrl} 
+                alt="School crest" 
+                className="w-full h-full object-contain p-0.5"
+              />
+            </div>
+          )}
           <h1 className="text-md font-bold uppercase tracking-wide text-black mb-1">
             {paper.schoolName}
           </h1>
           <h2 className="text-sm font-semibold text-black/80 mb-2">
-            Summative Assessment — {paper.subject} ({paper.className})
+            Summative Assessment — {paper.subject} ({paper.className || 'General'})
           </h2>
           
           <div className="border-t border-b border-black py-2 my-3 flex items-center justify-between text-xs font-medium text-black px-1">
@@ -262,7 +271,7 @@ export default function AssignmentOutputPage() {
                         <span className="font-bold min-w-[20px]">{qIdx + 1}.</span>
                         <div className="flex-1 space-y-2">
                           <div className="whitespace-pre-wrap font-medium">{q.text}</div>
-                          {q.type === 'mcq' && q.options && q.options.length > 0 && (
+                          {q.type?.toLowerCase() === 'mcq' && q.options && q.options.length > 0 && (
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-2 pl-1 text-[13px] font-normal text-black/90">
                               {q.options.map((opt, optIdx) => {
                                 const letter = String.fromCharCode(65 + optIdx); // A, B, C, D
@@ -332,7 +341,7 @@ export default function AssignmentOutputPage() {
                         <p className="font-bold mb-1">
                           Q{qIdx + 1}. {q.text.split('\n')[0]}...
                         </p>
-                        {q.type === 'mcq' ? (
+                        {q.type?.toLowerCase() === 'mcq' ? (
                           <div className="text-text-secondary bg-white p-2.5 rounded border border-border border-l-2 border-l-brand flex flex-col gap-1">
                             <p className="font-semibold text-brand text-xs">
                               Correct Option: {(() => {

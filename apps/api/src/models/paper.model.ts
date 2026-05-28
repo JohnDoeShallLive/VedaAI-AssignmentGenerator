@@ -5,14 +5,10 @@ export interface GeneratedPaperDocument extends Omit<IGeneratedPaper, '_id'>, Do
 
 const QuestionSchema = new Schema<Question>({
   id: { type: String, required: true },
+  type: { type: String }, // Add type!
   text: { type: String, required: true },
-  type: {
-    type: String,
-    enum: ['mcq', 'short', 'diagram', 'numerical', 'long'],
-    required: true,
-  },
-  options: { type: [String] },
-  correctAnswer: { type: String },
+  options: { type: [String], default: undefined }, // Add options!
+  correctAnswer: { type: String }, // Add correctAnswer!
   difficulty: {
     type: String,
     enum: ['easy', 'moderate', 'hard'],
@@ -30,9 +26,12 @@ const SectionSchema = new Schema<Section>({
 
 const GeneratedPaperSchema = new Schema<any>({
   assignmentId: { type: Schema.Types.ObjectId, ref: 'Assignment', required: true },
-  schoolName: { type: String, required: true },
+  userId: { type: Schema.Types.ObjectId, ref: 'User', index: true }, // Scoped owner — nullable for backward compatibility
+  institutionName: { type: String }, // Snapshot at generation time — nullable for backward compatibility
+  schoolName: { type: String }, // Legacy snapshot support — nullable
+  logoUrl: { type: String }, // Snapshot of school crest at generation time — optional
   subject: { type: String, required: true },
-  className: { type: String, required: true },
+  className: { type: String }, // Snapshot — nullable for backward compatibility
   timeAllowed: { type: String, required: true },
   totalMarks: { type: Number, required: true },
   sections: { type: [SectionSchema], required: true },
@@ -43,6 +42,7 @@ const GeneratedPaperSchema = new Schema<any>({
     transform: (doc, ret: any) => {
       ret._id = ret._id.toString();
       ret.assignmentId = ret.assignmentId.toString();
+      if (ret.userId) ret.userId = ret.userId.toString();
       delete ret.__v;
       return ret;
     }

@@ -114,7 +114,7 @@ Respond ONLY with a JSON object matching this schema:
 
 Mandatory Question Type Constraints (Violation is UNACCEPTABLE):
 1. MCQ questions (type: 'mcq') MUST contain:
-   - "type": "mcq"
+   - "type": "mcq" (CRITICAL: You MUST use 'mcq' for multiple choice, NEVER use 'short')
    - "options": An array containing EXACTLY 4 plausible choice strings.
    - "correctAnswer": A string matching EXACTLY one of the choices in the "options" array.
    - "text" must NOT contain the options A-D or answers directly.
@@ -127,6 +127,7 @@ Strict Formatting and Content Rules:
 - DO NOT generate generic textbook questions unrelated to the provided material or instructions. Every question must be grounded in the uploaded content, assignment title, or teacher intent.
 - Assign appropriate, logical question IDs in sequence (e.g., MCQ1, MCQ2... or A1, A2...).
 - Map each question type to one distinct section (Section A, Section B, Section C...) in order.
+- CRITICAL: Every question inside an MCQ section MUST be of type "mcq" and MUST have an "options" array. Do not generate generic questions without options for MCQs.
 - Set correct question marks inside each section matching the question type configuration.
 - Distribute question difficulty logically: approximately 40% easy, 40% moderate, 20% hard.
 - Do NOT output markdown code blocks (such as \`\`\`json). Output only raw JSON.
@@ -183,7 +184,7 @@ export function generateMockPaper(assignment: AssignmentDocument, extractedText?
 
   console.log(`[ai.service]: Context analysis matched topic "${detectedTopic}" for fallback paper generation.`);
 
-  const sections: Section[] = [];
+  const sections: any[] = [];
 
   // Question database catalog with actual structural parameters for MCQ (options, correctAnswer)
   const topicQuestions: Record<string, Record<string, { text: string; answer: string; difficulty: 'easy' | 'moderate' | 'hard'; options?: string[]; correctAnswer?: string }[]>> = {

@@ -13,17 +13,21 @@ const QuestionTypeSchema = new Schema<QuestionTypeConfig>({
     required: true,
   },
   label: { type: String, required: true },
-  count: { type: Number, required: true, min: 1, max: 50 },
-  marksEach: { type: Number, required: true, min: 1, max: 20 },
+  count: { type: Number, required: true, min: 1 },
+  marksEach: { type: Number, required: true, min: 1 },
 }, { _id: false });
 
-const AssignmentSchema = new Schema<any>({
+const AssignmentSchema = new Schema<AssignmentDocument>({
+  userId: { type: Schema.Types.ObjectId, ref: 'User', index: true }, // Nullable for legacy backward compatibility
+  groupId: { type: Schema.Types.ObjectId, ref: 'Group' }, // Optional group reference
   title: { type: String, required: true, trim: true },
   subject: { type: String, required: true, trim: true },
+  className: { type: String }, // Nullable for legacy backward compatibility
   dueDate: { type: String, required: true },
   questionTypes: { type: [QuestionTypeSchema], required: true },
   additionalInfo: { type: String, default: '' },
-  filePath: { type: String },
+  fileUrl: { type: String }, // Cloudinary file upload path
+  filePath: { type: String }, // Local file upload path (legacy fallback)
   status: {
     type: String,
     enum: ['draft', 'queued', 'processing', 'done', 'failed'],
@@ -36,6 +40,8 @@ const AssignmentSchema = new Schema<any>({
   toJSON: {
     transform: (doc, ret: any) => {
       ret._id = ret._id.toString();
+      if (ret.userId) ret.userId = ret.userId.toString();
+      if (ret.groupId) ret.groupId = ret.groupId.toString();
       if (ret.resultId) ret.resultId = ret.resultId.toString();
       delete ret.__v;
       return ret;

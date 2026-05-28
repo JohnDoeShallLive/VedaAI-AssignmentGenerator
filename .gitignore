@@ -1,4 +1,3 @@
-```gitignore
 # ============================================
 # Dependencies
 # ============================================
@@ -87,20 +86,11 @@ playwright-report/
 test-results/
 
 # ============================================
-# Vibe Coding / Context Files
-# (DO NOT PUSH)
+# Markdown Documents
+# (Ignore all .md files EXCEPT README.md)
 # ============================================
-PRD.md
-DESIGN_SPEC.md
-ARCHITECTURE.md
-MVP.md
-Upadated PRD.md
-Upadated MVP.md
-
-# Optional extra context/prompts
-prompts/
-context/
-notes/
+*.md
+!README.md
 
 # ============================================
 # Local Generated Files
@@ -113,4 +103,3 @@ notes/
 # Editor Config
 # ============================================
 .history/
-```

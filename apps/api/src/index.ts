@@ -1,17 +1,21 @@
+import './loadEnv';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import http from 'http';
 import path from 'path';
 import { connectDB } from './config/db';
 import { initializeWebSocketServer } from './services/websocket.service';
 import { initializePaperWorker } from './queues/paper.worker';
 import assignmentRouter from './routes/assignment.routes';
+import authRouter from './routes/auth.routes';
+import userRouter from './routes/user.routes';
+import groupRouter from './routes/group.routes';
+import libraryRouter from './routes/library.routes';
+import notificationRouter from './routes/notification.routes';
+import statsRouter from './routes/stats.routes';
 
-dotenv.config({ path: path.resolve(process.cwd(), '../../.env') });   // CWD-based path to root .env from apps/api
-dotenv.config({ path: path.resolve(process.cwd(), '.env') });         // CWD-based path to apps/api/.env
-dotenv.config({ path: path.resolve(__dirname, '../../../.env') });   // Directory-based path to root .env
-dotenv.config({ path: path.resolve(__dirname, '../.env') });         // Directory-based path to apps/api/.env
+// Env vars are loaded at the top via './loadEnv'
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -34,12 +38,19 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 // Serve uploads directory statically (for dev preview/downloads)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Mount API routes
 app.use('/api/v1', assignmentRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/users', userRouter);
+app.use('/api/groups', groupRouter);
+app.use('/api/library', libraryRouter);
+app.use('/api/notifications', notificationRouter);
+app.use('/api/stats', statsRouter);
 
 // Health check
 app.get('/api/v1/health', (req: Request, res: Response) => {

@@ -3,10 +3,14 @@ import { ConnectionOptions } from 'bullmq';
 
 const redisHost = process.env.REDIS_HOST || 'localhost';
 const redisPort = parseInt(process.env.REDIS_PORT || '6379', 10);
+const redisUsername = process.env.REDIS_USERNAME;
+const redisPassword = process.env.REDIS_PASSWORD;
 
 export const connectionOptions: ConnectionOptions = {
   host: redisHost,
   port: redisPort,
+  username: redisUsername,
+  password: redisPassword,
   maxRetriesPerRequest: null, // Critical requirement for BullMQ
 };
 
@@ -14,6 +18,8 @@ export const connectionOptions: ConnectionOptions = {
 export const redisClient = new Redis({
   host: redisHost,
   port: redisPort,
+  username: redisUsername,
+  password: redisPassword,
   maxRetriesPerRequest: null,
 });
 

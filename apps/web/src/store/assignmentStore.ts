@@ -6,6 +6,8 @@ interface CreateAssignmentForm {
   title: string;
   subject: string;
   dueDate: string;
+  className: string;
+  groupId: string;
   questionTypes: QuestionTypeConfig[];
   additionalInfo: string;
   file: File | null;
@@ -15,6 +17,8 @@ const initialFormState: CreateAssignmentForm = {
   title: '',
   subject: 'Science',
   dueDate: '',
+  className: 'General',
+  groupId: '',
   questionTypes: [
     { type: 'mcq', label: 'Multiple Choice Questions', count: 5, marksEach: 1 },
     { type: 'short', label: 'Short Questions', count: 3, marksEach: 2 },
@@ -100,6 +104,13 @@ export const useAssignmentStore = create<AssignmentState>((set, get) => ({
     postData.append('dueDate', formData.dueDate);
     postData.append('additionalInfo', formData.additionalInfo);
     postData.append('questionTypes', JSON.stringify(formData.questionTypes));
+    
+    if (formData.className) {
+      postData.append('className', formData.className);
+    }
+    if (formData.groupId) {
+      postData.append('groupId', formData.groupId);
+    }
     
     if (formData.file) {
       postData.append('file', formData.file);

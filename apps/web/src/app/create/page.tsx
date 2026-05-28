@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import axios from 'axios';
 import * as z from 'zod';
 import { 
   useAssignmentStore 
@@ -34,6 +35,8 @@ const questionTypeRowSchema = z.object({
 const createFormSchema = z.object({
   title: z.string().min(4, 'Title must be at least 4 characters long'),
   subject: z.string().min(2, 'Subject is required'),
+  className: z.string().min(1, 'Class / Standard is required'),
+  groupId: z.string().optional(),
   dueDate: z.string().refine((dateStr) => {
     if (!dateStr) return false;
     const [year, month, day] = dateStr.split('-').map(Number);
@@ -96,6 +99,23 @@ export default function CreateAssignmentPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [groups, setGroups] = useState<{ _id: string; name: string }[]>([]);
+
+  // Load user groups for selector
+  useEffect(() => {
+    const fetchUserGroups = async () => {
+      try {
+        const apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+        const res = await axios.get(`${apiURL}/api/groups`);
+        if (res.data && res.data.success) {
+          setGroups(res.data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load groups in wizard form:', err);
+      }
+    };
+    fetchUserGroups();
+  }, []);
 
   // Initialize react-hook-form
   const {
@@ -111,6 +131,8 @@ export default function CreateAssignmentPage() {
       title: formData.title,
       subject: formData.subject,
       dueDate: formData.dueDate,
+      className: formData.className || 'General',
+      groupId: formData.groupId || '',
       questionTypes: formData.questionTypes,
       additionalInfo: formData.additionalInfo,
     },
@@ -266,6 +288,8 @@ export default function CreateAssignmentPage() {
       title: values.title,
       subject: values.subject,
       dueDate: values.dueDate,
+      className: values.className,
+      groupId: values.groupId || '',
       additionalInfo: values.additionalInfo || '',
       questionTypes: values.questionTypes,
     });
@@ -469,6 +493,41 @@ export default function CreateAssignmentPage() {
               {errors.dueDate && (
                 <p className="text-[11px] text-danger font-medium">{errors.dueDate.message}</p>
               )}
+            </div>
+          </div>
+
+          {/* 2.5. Grid for Class & Group Category */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Class / Standard input */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-text-primary block">Class / Standard *</label>
+              <input
+                type="text"
+                placeholder="e.g. Class 10-A or Grade 12"
+                {...register('className')}
+                className={`w-full bg-white border rounded-md px-3 py-2.5 text-[13px] placeholder-text-disabled focus:outline-none shadow-sm ${
+                  errors.className ? 'border-danger focus:border-danger' : 'border-border focus:border-brand'
+                }`}
+              />
+              {errors.className && (
+                <p className="text-[11px] text-danger font-medium">{errors.className.message}</p>
+              )}
+            </div>
+
+            {/* Group selector */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-text-primary block">Assign to Group / Class Category (Optional)</label>
+              <select
+                {...register('groupId')}
+                className="w-full bg-white border border-border rounded-md px-3 py-2.5 text-[13px] focus:outline-none focus:border-brand shadow-sm cursor-pointer"
+              >
+                <option value="">No Group</option>
+                {groups.map((g) => (
+                  <option key={g._id} value={g._id}>
+                    {g.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
