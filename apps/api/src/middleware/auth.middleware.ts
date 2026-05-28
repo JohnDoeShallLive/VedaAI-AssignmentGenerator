@@ -31,6 +31,11 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       return res.status(401).json({ success: false, error: 'Unauthorized: Missing session token' });
     }
 
+    if (!auth) {
+      console.warn('[auth-middleware]: Firebase auth service is unavailable');
+      return res.status(500).json({ success: false, error: 'Auth service is unavailable' });
+    }
+
     // Decode and verify session token or ID token using Firebase Admin
     let decodedToken;
     try {

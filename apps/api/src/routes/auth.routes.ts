@@ -14,6 +14,9 @@ router.post('/sync', async (req: Request, res: Response, next: NextFunction) => 
     }
 
     // Verify ID token
+    if (!auth) {
+      return res.status(500).json({ success: false, error: 'Firebase auth service is unavailable' });
+    }
     const decodedToken = await auth.verifyIdToken(idToken);
     const { uid, email, name, picture, sign_in_provider } = decodedToken;
 

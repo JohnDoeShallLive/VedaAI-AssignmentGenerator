@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { z } from 'zod';
 import { AssignmentDocument } from '../models/assignment.model';
-import { Section, Question } from '@vedaai/types';
+import { Section, Question, QuestionTypeConfig } from '@vedaai/types';
 
 // Zod schemas for validation
 const QuestionSchema = z.object({
@@ -59,7 +59,7 @@ Strictly adhere to these pedagogical rules:
 // Build User Prompt
 export function buildUserPrompt(assignment: AssignmentDocument, extractedText?: string): string {
   const configs = assignment.questionTypes
-    .map(q => `- ${q.label} (type: '${q.type}'): ${q.count} questions × ${q.marksEach} marks each`)
+    .map((q: QuestionTypeConfig) => `- ${q.label} (type: '${q.type}'): ${q.count} questions × ${q.marksEach} marks each`)
     .join('\n');
 
   const materialSection = extractedText && extractedText.trim() !== ''
@@ -441,7 +441,7 @@ export function generateMockPaper(assignment: AssignmentDocument, extractedText?
   // Build sections from configs
   const sectionsAlphabet = 'ABCDE';
   
-  assignment.questionTypes.forEach((config, secIdx) => {
+  assignment.questionTypes.forEach((config: QuestionTypeConfig, secIdx: number) => {
     const secLetter = sectionsAlphabet[secIdx % sectionsAlphabet.length];
     const qList: Question[] = [];
     
@@ -469,7 +469,7 @@ export function generateMockPaper(assignment: AssignmentDocument, extractedText?
     });
   });
 
-  const totalQuestionsCount = assignment.questionTypes.reduce((sum, q) => sum + q.count, 0);
+  const totalQuestionsCount = assignment.questionTypes.reduce((sum: number, q: QuestionTypeConfig) => sum + q.count, 0);
   
   let timeAllowed = '45 minutes';
   if (totalQuestionsCount > 15) {
