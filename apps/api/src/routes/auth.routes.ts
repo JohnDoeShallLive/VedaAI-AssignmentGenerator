@@ -67,6 +67,7 @@ router.post('/sync', async (req: Request, res: Response, next: NextFunction) => 
 
     res.json({
       success: true,
+      sessionCookie: sessionCookie,
       data: {
         id: user._id.toString(),
         name: user.name,

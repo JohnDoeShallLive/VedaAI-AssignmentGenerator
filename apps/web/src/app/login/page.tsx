@@ -7,6 +7,7 @@ import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import axios from 'axios';
+import { setAuthCookie } from '@/app/actions/auth';
 
 function LoginComponent() {
   const router = useRouter();
@@ -79,6 +80,7 @@ function LoginComponent() {
       
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, { idToken }, { withCredentials: true });
       if (res.data.success) {
+        if (res.data.sessionCookie) await setAuthCookie(res.data.sessionCookie);
         await refreshUser();
         setSuccessMsg('Logged in successfully! Redirecting...');
         
@@ -133,6 +135,7 @@ function LoginComponent() {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, { idToken }, { withCredentials: true });
       
       if (res.data.success) {
+        if (res.data.sessionCookie) await setAuthCookie(res.data.sessionCookie);
         await refreshUser();
         setSuccessMsg('Registration successful! Redirecting...');
         
@@ -195,6 +198,7 @@ function LoginComponent() {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/sync`, { idToken }, { withCredentials: true });
       
       if (res.data.success) {
+        if (res.data.sessionCookie) await setAuthCookie(res.data.sessionCookie);
         await refreshUser();
         setSuccessMsg('Logged in successfully! Redirecting...');
         
